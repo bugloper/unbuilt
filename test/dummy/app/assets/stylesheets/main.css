@@ -1,3 +1,10 @@
 body {
-  color: yellow;
+  color: yellow;              /* Text color */
+  background-color: grey;    /* Background color */
+  font-family: Arial, sans-serif;  /* Font family */
+  font-size: 16px;             /* Font size */
+  line-height: 1.6;            /* Line height for better readability */
+  margin: 0;                   /* Remove default margin */
+  padding: 0;                  /* Remove default padding */
+  text-align: center;          /* Center text alignment */
 }
