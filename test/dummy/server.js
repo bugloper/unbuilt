@@ -6,25 +6,29 @@ import { fileURLToPath } from "node:url";
 
 const app = express();
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
-
 const { 
   config, 
   stylesheetLinkTag, 
   javascriptIncludeTag, 
-  imageUrl 
+  imageUrl,
+  fingerprint
 } = unbuilt;
 
-// Configure unbuilt with correct paths
-config.configure((cfg) => {
-  cfg.app_path = path.join(currentDir, 'app');
-  cfg.asset_path = path.join(currentDir, 'app', 'assets');
-  cfg.public_path = path.join(currentDir, 'public');
-});
+app.use(express.static(path.join(currentDir, 'public'), {
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    const etag = fingerprint(filePath);
+    res.setHeader('ETag', `"${etag}"`);
+    
+    if (filePath.match(/\.(css|js|jpg|jpeg|png|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+    }
+  }
+}));
 
-// Static file serving from public directory
-app.use(express.static(path.join(currentDir, 'public')));
-
-// Set up EJS and layouts
 app.set("view engine", "ejs");
 app.set("views", path.join(currentDir, 'app', 'views'));
 app.use(expressEjsLayouts);
@@ -32,7 +36,6 @@ app.set("layout", "layouts/application");
 app.set("layout extractStyles", true);
 app.set("layout extractScripts", true);
 
-// Make asset helpers available to all views
 app.use((req, res, next) => {
   res.locals.stylesheetLinkTag = stylesheetLinkTag;
   res.locals.javascriptIncludeTag = javascriptIncludeTag;
@@ -40,14 +43,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
-app.get("/", (_req, res) => {
-  res.render("pages/index", { 
+app.get("/", (req, res) => {
+  const pageData = {
     pageTitle: "Welcome to My App"
-  });
+  };
+  res.render("pages/index", pageData);
 });
 
-// Start server
 app.listen(3000, () => {
   console.log("App running at http://localhost:3000");
 });
