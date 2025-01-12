@@ -1,3 +1,6 @@
 [submodule "js-unbuilt"]
 	path = js-unbuilt
 	url = git@github.com:bugloper/js-unbuilt.git
+[submodule "c-unbuilt"]
+	path = c-unbuilt
+	url = git@github.com:bugloper/c-unbuilt.git
